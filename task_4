@@ -1,0 +1,68 @@
+from pathlib import Path
+
+def input_error(func: Callable) -> Callable:
+    def inner(*args, **kwargs) -> str:
+        try:
+            return func(*args, **kwargs)
+        except ValueError:
+            return "Помилка: Введіть ім'я та телефон, будь ласка."
+        except IndexError:
+            return "Помилка: Введіть ім'я користувача."
+        except KeyError:
+            # Обробка помилки, коли ім'я не знайдено (наприклад, для 'phone' або 'change').
+            return "Помилка: Контакт з таким ім'ям не знайдено."
+        except Exception as e:
+            # Загальна обробка непередбачених помилок
+            return f"Виникла непередбачена помилка: {e}"
+    return inner
+
+@input_error
+def parse_input(user_input):
+    cmd, *args = user_input.split()
+    cmd = cmd.strip().lower()
+    return cmd, *args
+@input_error
+def add_contact(args, contacts):
+    name, phone = args
+    contacts[name] = phone
+    return "Contact added."
+@input_error
+def change_username_phone(args, contacts):
+    name, phone = args
+    contacts[name] = phone
+    return "Contact added."
+@input_error
+def all_contacts (contacts):
+    result = []
+    for name, phone in contacts.items():
+        result.append(f"{name}: {phone}")
+    return "\n".join(result)
+@input_error
+def show_phone(args, contacts):
+    return contacts.get(args[0])
+
+def main():
+    contacts = {}
+    print("Welcome to the assistant bot!")
+    while True:
+        user_input = input("Enter a command: ")
+        command, *args = parse_input(user_input)
+
+        if command in ["close", "exit"]:
+            print("Good bye!")
+            break
+        elif command == "hello":
+            print("How can I help you?")
+        elif command == "add":
+            print(add_contact(args, contacts))
+        elif command == "change":
+            print(add_contact(args, contacts))
+        elif command == "phone":
+            print(show_phone(args, contacts))
+        elif command == "all":
+            print(all_contacts(contacts))
+        else:
+            print("Invalid command.")
+
+if __name__ == "__main__":
+    main()
